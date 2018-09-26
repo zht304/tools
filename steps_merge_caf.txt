@@ -1,0 +1,14 @@
+repo start codeaurura --all
+repo start quectel-dev --all
+keep the baseline of p4 and repo quectel-dev branch is same. if not, sync it.
+repo init ...  and repo sync to fetch to the new version.
+repo checkout quectel-dev
+run onlykeepgitfiles.sh in apps_proc of quectel-dev.
+run cleargitfiles.sh in p4 latest code dir.
+run copy-p4-to-repo.sh to copy files from p4 dir to repo dir to replace the codes. 
+repo status to check the changes
+commit the changes.
+repo forall -c git merge codeaurora
+clear the p4 dir's files. 
+copy the files from repo to p4.
+p4 rec -dea ./... to checkout the files
