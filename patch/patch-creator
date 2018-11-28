@@ -1,0 +1,12 @@
+src=$1
+target=$2
+rm -rf ./out/*
+rsync --dry-run --delete -rc -l   --out-format="%n"  ${target} ${src} > sdk_diff.list
+grep "^deleting" sdk_diff.list > patch_delete.list
+sed -e '/^deleting/ d' sdk_diff.list > diff.list
+sed -i -e '/ql-ol-crosstool/ d' diff.list
+sed -i -e '/ql-ol-crosstool/ d' patch_delete.list
+sed -i -e '/ql-ol-usrdata/ d' diff.list
+sed -i -e '/ql-ol-bootloader\/build-mdm9607/ d' diff.list
+cat  diff.list | xargs -I{} -d'\n' rsync  -R  -a ${target}./{}  out/
+tar -cjf delta.tar.bz2 ./out patch_delete.list diff.list

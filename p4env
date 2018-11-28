@@ -1,0 +1,15 @@
+if [ "$1" = "" ] || [ "$1" = "n" ]
+then
+	  export P4PORT="192.168.23.169:1666"
+	  export P4CLIENT="thomas-ssd"
+	  export P4USER="QSW_04"
+	  export P4PASSWD="123456"
+else
+	  export P4PORT="192.168.10.249:1666"
+	  export P4CLIENT="tpc-publish"
+	  export P4USER="thomas.zhang"
+	  export P4PASSWD="123456"
+fi
+
+export P4MERGE=p4merge
+
