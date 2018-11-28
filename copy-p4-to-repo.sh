@@ -14,6 +14,6 @@ do
 		continue
 	fi
 	echo processing $file
-	cp -a $src/$file/*  $dest/$file/
+	cp -av $src/$file/*  $dest/$file/
 done
 

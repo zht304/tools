@@ -1,0 +1,20 @@
+git checkout -b quec-r65
+rm -rf apps_proc
+cp -a p4dept/path/apps_proc .
+git add -A
+git commit 
+git merge r75
+
+git checkout r75
+git checkout -b r75-with-caf
+./cleargitfiles  (find . -path ".repo" -prune -o -name ".git" -exec rm -rf {} + )
+./syncbuild xxxx
+git status
+git add
+git commit
+
+git checkout quec-r65
+git merge r75-with-caf
+
+
+
