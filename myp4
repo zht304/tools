@@ -1,0 +1,2 @@
+#!/bin/sh
+LANG=zh_CN.gb2312 LC_CTYPE=zh_CN.gb2312  /home/thomas/p4/bin/p4v
