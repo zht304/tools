@@ -1,0 +1,7 @@
+1. qc part:
+    encrypted part: p4
+    apps_proc part: git. refer to steps_merge_apps.txt        
+
+
+2. caf part:
+   refer to steps_merge_caf.txt

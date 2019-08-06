@@ -1,6 +1,8 @@
-repo start codeaurura --all
+repo start codeaurura --all  # branch new to sync to the new version.
 repo start quectel-dev --all
-keep the baseline of p4 and repo quectel-dev branch is same. if not, sync it.
+#keep the baseline of p4 and repo quectel-dev branch is same. if not, sync it.
+
+repo checkout codeaurura
 repo init ...  and repo sync to fetch to the new version.
 repo checkout quectel-dev
 run onlykeepgitfiles.sh in apps_proc of quectel-dev.
@@ -12,4 +14,16 @@ commit the changes.  repo forall -c git add -A
     repo forall -c git commit -m "update to p4 ..."
 repo forall -c git merge codeaurora
 copy the files from repo to p4.  ./replace-p4-with-repo.sh
+run cleargitfiles.sh in p4 code apps_proc dir.
 p4 rec -dea ./... to checkout the files
+
+
+
+--------------------
+note:
+repo start will checkout a new branch as described in the manifest. but not based on current branch.
+example:
+# if the manifest points to r02's revision.
+repo checkout r02 # r02 is newer than r01
+repo checkout r01
+repo start newb   # newb will be r02.
