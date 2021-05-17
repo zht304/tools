@@ -26,6 +26,7 @@ def parse_input_args(input_args):
     init_optparse.add_option('-a', '--assignee', help='assignee', dest='assignee')
     init_optparse.add_option('-r', '--reporter', help='reporter', dest='reporter')
     init_optparse.add_option('-l', '--assignee-list', help='file of assignee list', dest='assignee_list')
+    init_optparse.add_option('-j', '--jira-account', help='jira account', dest='acct')
     (options, left_args) = init_optparse.parse_args(input_args)
 
     return options, left_args
@@ -34,21 +35,28 @@ def parse_input_args(input_args):
 class ResolvedSearcher:
     jira_uri = 'https://ticket.quectel.com'
 
-    def __init__(self, account_, passwd_):
+    def __init__(self, account_, passwd_, kwargs):
         self.jira_account = account_
         self.jira_passwd = passwd_
         self.jira_client = jira.JIRA(self.jira_uri, basic_auth=(account_name, passwd))
+        self._process_kwargs(kwargs)
+        self.kwargs = kwargs
 
     def _process_kwargs(self, kwargs):
         today = date.today()
         if not kwargs.s_date:
             kwargs.s_date = today - timedelta(days=today.weekday())
+        else:
+            kwargs.s_date = date.fromisoformat(kwargs.s_date)
         if not kwargs.e_date:
             kwargs.e_date = today + timedelta(days=6 - today.weekday())
+        else:
+            kwargs.e_date = date.fromisoformat(kwargs.e_date)
 
-    def _generate_jql(self, who, kwargs):
+    def _generate_jql(self, who):
         my_jql = 'status not in (OPEN,Assigned,SPM_Assigned,"DO",Working,PENDING,Analysing,APPROVING,' \
                  'ST_Open,ST_Reopen,STL_Checked) '
+        kwargs = self.kwargs
         if kwargs.project:
             my_jql += 'AND project = %s' % kwargs.project
         if who:
@@ -60,16 +68,12 @@ class ResolvedSearcher:
 
         return my_jql
 
-    def search_resolved(self, assignee, kwargs):
+    def search_resolved(self, assignee):
         """
 
         @param assignee: the assignee you want to search
-        @param kwargs: [project] jira projects in which you want to search
-                        [assignee] jira assignee who will be searched
-                        [reporter] issue reporter
         """
-        self._process_kwargs(kwargs)
-        my_jql = self._generate_jql(assignee, kwargs)
+        my_jql = self._generate_jql(assignee)
 
         search_results = []
         index = 0
@@ -88,7 +92,7 @@ class ResolvedSearcher:
                     continue
 
                 change_date = date.fromisoformat(history.created[0:10])
-                if change_date < kwargs.s_date or kwargs.e_date < change_date:
+                if change_date < self.kwargs.s_date or self.kwargs.e_date < change_date:
                     continue
 
                 for change_content in history.items:
@@ -168,20 +172,27 @@ class JiraResultSaver:
             ws.row_dimensions[row].height = 30
             row += 1
 
+    def save(self):
         self.workbook.save(self.file_name)
 
 
 def read_persons_from_file(persons, list_file):
     with open(list_file, 'r') as f:
         for line in f.readlines():
-            persons.append(line.strip())
+            name = line.strip()
+            if name:
+                persons.append(line.strip())
 
 
 if __name__ == "__main__":
-    account_name = input('Jira Account: ')
-    passwd = getpass.getpass('Password: ')
-
     (opts, args) = parse_input_args(sys.argv[1:])
+
+    if not opts.acct:
+        account_name = input('Jira Account: ')
+    else:
+        account_name = opts.acct
+        print('Jira account: %s' % account_name)
+    passwd = getpass.getpass('Jira Password: ')
 
     team = []
     if not opts.assignee_list:
@@ -191,11 +202,14 @@ if __name__ == "__main__":
     else:
         read_persons_from_file(team, opts.assignee_list)
 
-    searcher = ResolvedSearcher(account_name, passwd)
+    searcher = ResolvedSearcher(account_name, passwd, opts)
     excel = JiraResultSaver('report.xlsx')
 
     for engineer in team:
         print('searching issues of %s...' % engineer)
-        issues = searcher.search_resolved('%s@quectel.com' % engineer, opts)
+        issues = searcher.search_resolved('%s@quectel.com' % engineer)
         excel.write(engineer, issues)
+        # save at once to reduce RAM occupy
+        excel.save()
+
     print('Done')
