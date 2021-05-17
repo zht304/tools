@@ -14,3 +14,5 @@ python main.py -a xx.yy@quectel.com
 -s 起始日期 YYYY-MM-DD    缺省默认本周内
 -e 结束日期 YYYY-MM-DD    缺省默认本周内
 -p jira project
+-l  名单列表文件
+-j  jira登录账户名
