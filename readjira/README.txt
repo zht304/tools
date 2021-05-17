@@ -10,7 +10,7 @@ python main.py -l team.txt
 python main.py -a xx.yy@quectel.com
 
 参数：
--a assignee账号
+-a assignee账号（不带邮箱后缀）
 -s 起始日期 YYYY-MM-DD    缺省默认本周内
 -e 结束日期 YYYY-MM-DD    缺省默认本周内
 -p jira project

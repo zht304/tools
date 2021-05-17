@@ -88,7 +88,7 @@ class ResolvedSearcher:
 
         for issue in search_results:
             for history in issue.changelog.histories:
-                if not history.author.key == assignee:
+                if not history.author.name == assignee:
                     continue
 
                 change_date = date.fromisoformat(history.created[0:10])
