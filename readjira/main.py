@@ -66,6 +66,8 @@ class ResolvedSearcher:
         if kwargs.reporter:
             my_jql += 'AND reporter = "%s" ' % kwargs.reporter
 
+        my_jql += 'AND updatedDate >= %s ' % kwargs.s_date.isoformat()
+
         return my_jql
 
     def search_resolved(self, assignee):
